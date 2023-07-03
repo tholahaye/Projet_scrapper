@@ -1,18 +1,20 @@
+import pymongo
 import requests
-from bs4 import BeautifulSoup
+import bs4
 from urllib.parse import urljoin
 
-links_with_text = []
+#Création du client MongoDB
+client = pymongo.MongoClient('localhost')
+#Création de la base de données
+db_test = client.test_scrapping_2
+#Création de la collection
+collection_test = db_test.scrapped_url
 
 url = input("URL : ")
-page = requests.get(url)
-soup = BeautifulSoup(page.content, 'html.parser')
 
-if response.status_code == 200:
 
-else:
-    print("error 404")
 def absolute_links(url, soup):
+    links_with_text = []
     for a in soup.findAll('a'):
         if a.get('href'):
             href = a['href']
@@ -20,9 +22,21 @@ def absolute_links(url, soup):
                 absolute_url = urljoin(url, href)
                 a['href'] = absolute_url
                 links_with_text.append(absolute_url)
+    # Transformation en ensemble pour éliminer les doublons.
+    links_with_text = set(links_with_text)
+    return links_with_text
 
 
-absolute_links(url, soup)
+def insert_links(url, collection, limite=None):
+    r = requests.get(url) #Requête HTTP sur la page cible
+    soup = bs4.BeautifulSoup(r.content, 'html.parser')#Parsing du code HTML de la page
+    decompte = 0
+    for link in absolute_links(r.url, soup):
+        collection.insert_one({"url_de_la_page": f"{r.url}", "url_du_lien": f"{link}"})
+        print(f"Bien inséré à la db :{link}")
+        decompte += 1
+        if decompte == limite: #pour s'arrêter à la limite
+            break
 
-print("Liens avec du texte :")
-print(links_with_text)
+
+insert_links(url, collection_test)
