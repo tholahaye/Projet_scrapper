@@ -1,5 +1,5 @@
 import pymongo
-import list_url
+import liste_url
 
 #Création du client MongoDB
 client = pymongo.MongoClient('localhost')
@@ -10,4 +10,4 @@ collection_test = db_test.scrapped_url
 
 url = input("URL : ")
 
-list_url.insert_links(url, collection_test)
+liste_url.insert_links(url, collection_test)
