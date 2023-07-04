@@ -5,9 +5,9 @@ import traceback
 
 
 class ScrappingSession:
-    def __init__(self, url, collection, list_domains, list_directories=None, limite=None):
+    def __init__(self, url, collection_session_ip, list_domains, list_directories=None, limite=None):
         self.url = url
-        self.collection = collection
+        self.collection_session = collection_session_ip
         self.list_domains = list_domains
         self.list_directories = list_directories
         self.limite = limite
@@ -73,7 +73,7 @@ class ScrappingSession:
 
     # Fonction qui renvoit True si l'url est déjà dans la collection cible, False sinon.
     def inserted_urls(self, link):
-        for document in self.collection.find():
+        for document in self.collection_session.find():
             if document["url_du_lien"] == link:
                 print(f"{link} déja dans la base")
                 return True
@@ -93,16 +93,15 @@ class ScrappingSession:
         for text in soup.findAll(['b', 'strong', 'em']):
             important.append(text.text)
 
-        print("titre")
-        print(titre)
-        print("h1")
-        print(h1)
-        print("h2")
-        print(h2)
-        print("élément b / stong / em")
-        print(important)
+        return{"HTML": soup.prettify,"titre": titre,"h1":h1,"h2": h2,"élément en gras": important}
 
-        return {"titre": titre, "h1": h1, "h2": h2, "élément en gras": important}
+    def insert_document(self):
+        # Requête HTTP sur la page cible
+        r = self.url_request()
+        # Parsing du code HTML de la page
+        soup = bs4.BeautifulSoup(r.content, 'html.parser')
+
+        self.textscrap(soup)
 
     def insert_links(self):
         # Requête HTTP sur la page cible
@@ -110,12 +109,13 @@ class ScrappingSession:
         # Parsing du code HTML de la page
         soup = bs4.BeautifulSoup(r.content, 'html.parser')
         decompte = 0
+
         for link in self.absolute_links(soup):
             if self.list_directories is None:
                 self.list_directories = []
             if self.check_scope(link):
                 if not self.inserted_urls(link):
-                    self.collection.insert_one({"url_de_la_page": f"{r.url}", "url_du_lien": f"{link}"})
+                    self.collection_session.insert_one({"url_de_la_page": f"{r.url}", "url_du_lien": f"{link}"})
                     print(f"Bien inséré à la db :{link}")
                     decompte += 1
                     if decompte == self.limite:
