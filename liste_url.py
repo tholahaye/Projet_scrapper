@@ -5,11 +5,11 @@ import traceback
 
 
 class ScrappingSession:
-    def __init__(self, url, collection, list_domains, list_repositories=None, limite=None):
+    def __init__(self, url, collection, list_domains, list_directories=None, limite=None):
         self.url = url
         self.collection = collection
         self.list_domains = list_domains
-        self.list_repositories = list_repositories
+        self.list_directories = list_directories
         self.limite = limite
         self.links_with_text = []
 
@@ -20,18 +20,18 @@ class ScrappingSession:
                 return True
         return False
 
-    def check_repository(self, link):
+    def check_directory(self, link):
         parsed_url = urlparse(link)
-        for repository in self.list_repositories:
-            if parsed_url.path.startswith(repository):
+        for directory in self.list_directories:
+            if parsed_url.path.startswith(directory):
                 return True
         return False
 
     def check_scope(self, link):
         if self.check_domain(link):
-            if len(self.list_repositories) == 0:
+            if len(self.list_directories) == 0:
                 return True
-            if self.check_repository(link):
+            if self.check_directory(link):
                 return True
         print(f"{link} est hors du scope")
         return False
@@ -79,6 +79,31 @@ class ScrappingSession:
                 return True
         return False
 
+    def textscrap(self, soup):
+        h1 = []
+        h2 = []
+        titre = []
+        important = []
+        for text in soup.findAll('title'):
+            titre.append(text.text)
+        for text in soup.findAll('h1'):
+            h1.append(text.text)
+        for text in soup.findAll('h2'):
+            h2.append(text.text)
+        for text in soup.findAll(['b', 'strong', 'em']):
+            important.append(text.text)
+
+        print("titre")
+        print(titre)
+        print("h1")
+        print(h1)
+        print("h2")
+        print(h2)
+        print("élément b / stong / em")
+        print(important)
+
+        return {"titre": titre, "h1": h1, "h2": h2, "élément en gras": important}
+
     def insert_links(self):
         # Requête HTTP sur la page cible
         r = self.url_request()
@@ -86,8 +111,8 @@ class ScrappingSession:
         soup = bs4.BeautifulSoup(r.content, 'html.parser')
         decompte = 0
         for link in self.absolute_links(soup):
-            if self.list_repositories is None:
-                self.list_repositories = []
+            if self.list_directories is None:
+                self.list_directories = []
             if self.check_scope(link):
                 if not self.inserted_urls(link):
                     self.collection.insert_one({"url_de_la_page": f"{r.url}", "url_du_lien": f"{link}"})
