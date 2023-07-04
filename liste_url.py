@@ -1,7 +1,20 @@
 import requests
 import bs4
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
+def check_domain(url, list_domains):
+    parsed_url = urlparse(url)
+    for domain in list_domains:
+        if parsed_url['netloc'].endswith(domain):
+            return True
+    return False
+
+def check_repositry(url, list_repository):
+    parsed_url = urlparse(url)
+    for repository in list_repository:
+        if parsed_url['path'].startswith(repository):
+            return True
+    return False
 
 def absolute_links(url, soup):
     links_with_text = []
@@ -15,6 +28,12 @@ def absolute_links(url, soup):
     links_with_text = set(links_with_text)
     return links_with_text
 
+def check_scope(url, list_domains):
+    parsed_url = urlparse(url)
+    for domain in list_domains:
+        if parsed_url["netloc"].endswith("domain"):
+            return True
+    return False
 
 #Fonction qui renvoit True si l'url est déjà dans la collection cible, False sinon.
 def inserted_urls(url, collection):
