@@ -8,10 +8,9 @@ def absolute_links(url, soup):
     for a in soup.findAll('a'):
         if a.get('href'):
             href = a['href']
-            if href.startswith('/'):
-                absolute_url = urljoin(url, href)
-                a['href'] = absolute_url
-                links_with_text.append(absolute_url)
+            absolute_url = urljoin(url, href)
+            a['href'] = absolute_url
+            links_with_text.append(absolute_url)
     # Transformation en ensemble pour éliminer les doublons.
     links_with_text = set(links_with_text)
     return links_with_text
