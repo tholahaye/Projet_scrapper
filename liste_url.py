@@ -3,35 +3,37 @@ import bs4
 from urllib.parse import urljoin, urlparse
 import traceback
 
+
 class ScrappingSession:
-    def __init__(self, url,collection, list_domains, list_repositories=None, limite=None):
+    def __init__(self, url, collection, list_domains, list_repositories=None, limite=None):
         self.url = url
         self.collection = collection
         self.list_domains = list_domains
         self.list_repositories = list_repositories
         self.limite = limite
         self.links_with_text = []
-    def check_domain(self):
-        parsed_url = urlparse(self.url)
+
+    def check_domain(self, link):
+        parsed_url = urlparse(link)
         for domain in self.list_domains:
             if parsed_url.netloc.endswith(domain):
                 return True
         return False
 
-    def check_repository(self):
-        parsed_url = urlparse(self.url)
+    def check_repository(self, link):
+        parsed_url = urlparse(link)
         for repository in self.list_repositories:
             if parsed_url.path.startswith(repository):
                 return True
         return False
 
-    def check_scope(self):
-        if self.check_domain():
+    def check_scope(self, link):
+        if self.check_domain(link):
             if len(self.list_repositories) == 0:
                 return True
-            if self.check_repository():
+            if self.check_repository(link):
                 return True
-        print(f"{self.url} est hors du scope")
+        print(f"{link} est hors du scope")
         return False
 
     # Requête HTTP sur la page cible
@@ -65,7 +67,6 @@ class ScrappingSession:
                 href = a['href']
                 absolute_url = urljoin(self.url, href)
                 a['href'] = absolute_url
-                print(absolute_url)
                 if absolute_url not in self.links_with_text:
                     self.links_with_text.append(absolute_url)
         return self.links_with_text
@@ -87,7 +88,7 @@ class ScrappingSession:
         for link in self.absolute_links(soup):
             if self.list_repositories is None:
                 self.list_repositories = []
-            if self.check_scope():
+            if self.check_scope(link):
                 if not self.inserted_urls(link):
                     self.collection.insert_one({"url_de_la_page": f"{r.url}", "url_du_lien": f"{link}"})
                     print(f"Bien inséré à la db :{link}")
