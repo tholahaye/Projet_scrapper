@@ -5,13 +5,12 @@ import traceback
 
 
 class UrlScrapper:
-    def __init__(self, url, collection_session_ip, collection_data, list_domains, list_directories=None, limite=None):
+    def __init__(self, url, collection_session_ip, collection_data, list_domains, list_directories=None):
         self.url = url
         self.collection_session = collection_session_ip
         self.collection_data = collection_data
         self.list_domains = list_domains
         self.list_directories = list_directories
-        self.limite = limite
         self.links_with_text = set()
 
     def _check_domain(self, link):
@@ -94,9 +93,7 @@ class UrlScrapper:
                 if not self._inserted_urls(link):
                     self.collection_session.insert_one({"url_de_la_page": f"{r.url}", "url_du_lien": f"{link}"})
                     print(f"Bien inséré à la db :{link}")
-                    decompte += 1
-                    if decompte == self.limite:
-                        break
+
 
     def _textscrap(self, soup):
         h1 = []
@@ -120,6 +117,6 @@ class UrlScrapper:
 
         # A compléter avec la strcture attendue par la collection "data"
         document = {"url": self.url, "data": self._textscrap(soup)}
-        
+
         self.collection_data.insert_one(document)
 
