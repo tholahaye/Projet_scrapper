@@ -14,8 +14,6 @@ class ScrapingSession:
 
         self.collection_session.insert_one({"url_de_la_page": f"{self.url}", "url_du_lien": f"{self.url}", "status": "pending"})
 
-
-
     def scraping_loop(self):
 
         while self.scraped_url < self.limite:

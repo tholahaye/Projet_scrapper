@@ -111,7 +111,6 @@ class UrlScraper:
 
     def insert_document(self):
         if self.request is not None:
-            soup = bs4.BeautifulSoup(self.request.content, 'html.parser')
 
             # A compléter avec la strcture attendue par la collection "data"
             document = {"url": self.url, "data": self._textscrap()}
