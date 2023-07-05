@@ -2,7 +2,8 @@ import liste_url
 
 
 class ScrapingSession:
-    def __init__(self, url, collection_session, collection_data, list_domains, list_directories=None, limite=10):
+    def __init__(self, url, collection_session, collection_data,
+                 list_domains,list_directories=None, limite=10):
         self.url = url
         self.url_in_progress = None
         self.collection_session = collection_session

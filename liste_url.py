@@ -90,7 +90,8 @@ class UrlScraper:
                     self.list_directories = []
                 if self._check_scope(link):
                     if not self._inserted_urls(link):
-                        self.collection_session.insert_one({"url_de_la_page": f"{self.request.url}", "url_du_lien": f"{link}", "status": "pending"})
+                        self.collection_session.insert_one({"url_de_la_page": f"{self.request.url}",
+                                                            "url_du_lien": f"{link}", "status": "pending"})
                         print(f"Bien inséré à la db :{link}")
 
     def _textscrap(self):
