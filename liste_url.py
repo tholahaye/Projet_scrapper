@@ -13,30 +13,7 @@ class UrlScrapper:
         self.list_directories = list_directories
         self.links_with_text = set()
 
-    def _check_domain(self, link):
-        parsed_url = urlparse(link)
-        for domain in self.list_domains:
-            if parsed_url.netloc.endswith(domain):
-                return True
-        return False
-
-    def _check_directory(self, link):
-        parsed_url = urlparse(link)
-        for directory in self.list_directories:
-            if parsed_url.path.startswith(directory):
-                return True
-        return False
-
-    def _check_scope(self, link):
-        if self._check_domain(link):
-            if len(self.list_directories) == 0:
-                return True
-            if self._check_directory(link):
-                return True
-        print(f"{link} est hors du scope")
-        return False
-
-    # Requête HTTP sur la page cible
+        # Requête HTTP sur la page cible
     def _url_request(self):
         result = None
         nb_requests = 0
@@ -61,7 +38,30 @@ class UrlScrapper:
             # Ajout du log de l'erreur ?
             nb_requests += 1
 
-    def _absolute_links(self, soup):
+    def _check_domain(self, link):
+        parsed_url = urlparse(link)
+        for domain in self.list_domains:
+            if parsed_url.netloc.endswith(domain):
+                return True
+        return False
+
+    def _check_directory(self, link):
+        parsed_url = urlparse(link)
+        for directory in self.list_directories:
+            if parsed_url.path.startswith(directory):
+                return True
+        return False
+
+    def _check_scope(self, link):
+        if self._check_domain(link):
+            if len(self.list_directories) == 0:
+                return True
+            if self._check_directory(link):
+                return True
+        print(f"{link} est hors du scope")
+        return False
+
+     def _absolute_links(self, soup):
         for a in soup.findAll('a'):
             if a.get('href'):
                 href = a['href']
