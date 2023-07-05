@@ -1,4 +1,3 @@
-import pymongo
 import liste_url
 
 class ScrapingSession:
@@ -13,21 +12,27 @@ class ScrapingSession:
         self.scraped_url = 0
 
     def scraping_loop(self):
+
         while self.scraped_url < 10:
             self.scraped_url += 1
             self.select_url()
-            liste_url.UrlScraper(self.url_in_progress,self.collection_session, self.collection_data, self.list_domains, self.list_directories)
+            scraper = liste_url.UrlScraper(self.url_in_progress,self.collection_session, self.collection_data, self.list_domains, self.list_directories)
+            scraper.insert_links()
+            scraper.insert_document()
+            print(f"{self.url_in_progress} is done")
             self.url_done()
+        print("Loop completed")
 
     def select_url(self):
         if self.url_in_progress is None:
             self.url_in_progress = self.url
         else:
-            self.url_in_progress = self.collection_session.find_one({"status": "pending"})
-        url_id = self.url_in_progress["_id"]
+            url = self.collection_session.find_one({"status": "pending"})
+            self.url_in_progress = url["_id"]
+        url_id = self.collection_session.find_one({"url_du_lien": self.url_in_progress})["_id"]
         self.collection_session.update_one({"_id": url_id}, {"$set": {"status": "in progress"}})
         return self.url_in_progress
 
     def url_done(self):
-        url_id = self.url_in_progress["_id"]
+        url_id = self.collection_session.find_one({"url_du_lien": self.url_in_progress})["_id"]
         self.collection_session.update_one({"_id": url_id}, {"$set": {"status": "done"}})

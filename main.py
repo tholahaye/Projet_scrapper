@@ -1,5 +1,5 @@
 import pymongo
-import liste_url
+import session
 
 #Création du client MongoDB
 client = pymongo.MongoClient('localhost')
@@ -16,7 +16,6 @@ list_directories = ["/wiki/","/w/"]
 url ="https://fr.wikipedia.org/wiki/Garnier_de_Rochefort" #input("URL : ")
 
 
-scraper = liste_url.UrlScraper(url, collection_session_test, collection_data_test, list_domains, list_directories)
-scraper.insert_links()
-scraper.insert_document()
+session = session.ScrapingSession(url, collection_session_test, collection_data_test, list_domains, list_directories)
+session.scraping_loop()
 print("Done")
