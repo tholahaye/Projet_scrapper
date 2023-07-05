@@ -4,40 +4,41 @@ from urllib.parse import urljoin, urlparse
 import traceback
 
 
-class ScrappingSession:
-    def __init__(self, url, collection_session_ip, list_domains, list_directories=None, limite=None):
+class UrlScrapper:
+    def __init__(self, url, collection_session_ip, collection_data, list_domains, list_directories=None, limite=None):
         self.url = url
         self.collection_session = collection_session_ip
+        self.collection_data = collection_data
         self.list_domains = list_domains
         self.list_directories = list_directories
         self.limite = limite
-        self.links_with_text = []
+        self.links_with_text = set()
 
-    def check_domain(self, link):
+    def _check_domain(self, link):
         parsed_url = urlparse(link)
         for domain in self.list_domains:
             if parsed_url.netloc.endswith(domain):
                 return True
         return False
 
-    def check_directory(self, link):
+    def _check_directory(self, link):
         parsed_url = urlparse(link)
         for directory in self.list_directories:
             if parsed_url.path.startswith(directory):
                 return True
         return False
 
-    def check_scope(self, link):
-        if self.check_domain(link):
+    def _check_scope(self, link):
+        if self._check_domain(link):
             if len(self.list_directories) == 0:
                 return True
-            if self.check_directory(link):
+            if self._check_directory(link):
                 return True
         print(f"{link} est hors du scope")
         return False
 
     # Requête HTTP sur la page cible
-    def url_request(self):
+    def _url_request(self):
         result = None
         nb_requests = 0
         while nb_requests < 10:
@@ -61,25 +62,43 @@ class ScrappingSession:
             # Ajout du log de l'erreur ?
             nb_requests += 1
 
-    def absolute_links(self, soup):
+    def _absolute_links(self, soup):
         for a in soup.findAll('a'):
             if a.get('href'):
                 href = a['href']
                 absolute_url = urljoin(self.url, href)
                 a['href'] = absolute_url
                 if absolute_url not in self.links_with_text:
-                    self.links_with_text.append(absolute_url)
+                    self.links_with_text.add(absolute_url)
         return self.links_with_text
 
     # Fonction qui renvoit True si l'url est déjà dans la collection cible, False sinon.
-    def inserted_urls(self, link):
+    def _inserted_urls(self, link):
         for document in self.collection_session.find():
             if document["url_du_lien"] == link:
                 print(f"{link} déja dans la base")
                 return True
         return False
 
-    def textscrap(self, soup):
+    def insert_links(self):
+        # Requête HTTP sur la page cible
+        r = self._url_request()
+        # Parsing du code HTML de la page
+        soup = bs4.BeautifulSoup(r.content, 'html.parser')
+        decompte = 0
+
+        for link in self._absolute_links(soup):
+            if self.list_directories is None:
+                self.list_directories = []
+            if self._check_scope(link):
+                if not self._inserted_urls(link):
+                    self.collection_session.insert_one({"url_de_la_page": f"{r.url}", "url_du_lien": f"{link}"})
+                    print(f"Bien inséré à la db :{link}")
+                    decompte += 1
+                    if decompte == self.limite:
+                        break
+
+    def _textscrap(self, soup):
         h1 = []
         h2 = []
         titre = []
@@ -93,30 +112,12 @@ class ScrappingSession:
         for text in soup.findAll(['b', 'strong', 'em']):
             important.append(text.text)
 
-        return{"HTML": soup.prettify,"titre": titre,"h1":h1,"h2": h2,"élément en gras": important}
+        return{"HTML": str(soup.prettify), "titre": titre, "h1": h1, "h2": h2, "élément en gras": important}
 
     def insert_document(self):
-        # Requête HTTP sur la page cible
-        r = self.url_request()
-        # Parsing du code HTML de la page
+        r = self._url_request()
         soup = bs4.BeautifulSoup(r.content, 'html.parser')
 
-        self.textscrap(soup)
+        # A compléter avec la strcture attendue par la collection "data"
+        self.collection_data.insert_one({"url": self.url, "data": self._textscrap(soup)})
 
-    def insert_links(self):
-        # Requête HTTP sur la page cible
-        r = self.url_request()
-        # Parsing du code HTML de la page
-        soup = bs4.BeautifulSoup(r.content, 'html.parser')
-        decompte = 0
-
-        for link in self.absolute_links(soup):
-            if self.list_directories is None:
-                self.list_directories = []
-            if self.check_scope(link):
-                if not self.inserted_urls(link):
-                    self.collection_session.insert_one({"url_de_la_page": f"{r.url}", "url_du_lien": f"{link}"})
-                    print(f"Bien inséré à la db :{link}")
-                    decompte += 1
-                    if decompte == self.limite:
-                        break
