@@ -61,7 +61,7 @@ class UrlScrapper:
         print(f"{link} est hors du scope")
         return False
 
-     def _absolute_links(self, soup):
+    def _absolute_links(self, soup):
         for a in soup.findAll('a'):
             if a.get('href'):
                 href = a['href']
@@ -80,19 +80,18 @@ class UrlScrapper:
         return False
 
     def insert_links(self):
-        # Requête HTTP sur la page cible
         r = self._url_request()
-        # Parsing du code HTML de la page
-        soup = bs4.BeautifulSoup(r.content, 'html.parser')
-        decompte = 0
+        if r is not None:
+            soup = bs4.BeautifulSoup(r.content, 'html.parser')
+            decompte = 0
 
-        for link in self._absolute_links(soup):
-            if self.list_directories is None:
-                self.list_directories = []
-            if self._check_scope(link):
-                if not self._inserted_urls(link):
-                    self.collection_session.insert_one({"url_de_la_page": f"{r.url}", "url_du_lien": f"{link}"})
-                    print(f"Bien inséré à la db :{link}")
+            for link in self._absolute_links(soup):
+                if self.list_directories is None:
+                    self.list_directories = []
+                if self._check_scope(link):
+                    if not self._inserted_urls(link):
+                        self.collection_session.insert_one({"url_de_la_page": f"{r.url}", "url_du_lien": f"{link}"})
+                        print(f"Bien inséré à la db :{link}")
 
 
     def _textscrap(self, soup):
@@ -113,10 +112,11 @@ class UrlScrapper:
 
     def insert_document(self):
         r = self._url_request()
-        soup = bs4.BeautifulSoup(r.content, 'html.parser')
+        if r is not None:
+            soup = bs4.BeautifulSoup(r.content, 'html.parser')
 
-        # A compléter avec la strcture attendue par la collection "data"
-        document = {"url": self.url, "data": self._textscrap(soup)}
+            # A compléter avec la strcture attendue par la collection "data"
+            document = {"url": self.url, "data": self._textscrap(soup)}
 
-        self.collection_data.insert_one(document)
+            self.collection_data.insert_one(document)
 
