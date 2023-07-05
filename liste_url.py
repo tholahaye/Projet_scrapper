@@ -4,7 +4,7 @@ from urllib.parse import urljoin, urlparse
 import traceback
 
 
-class UrlScrapper:
+class UrlScraper:
     def __init__(self, url, collection_session_ip, collection_data, list_domains, list_directories=None):
         self.url = url
         self.collection_session = collection_session_ip
@@ -12,6 +12,9 @@ class UrlScrapper:
         self.list_domains = list_domains
         self.list_directories = list_directories
         self.links_with_text = set()
+        self.request = self._url_request()
+        if self.request is not None:
+            self.soup = bs4.BeautifulSoup(self.request.content, 'html.parser')
 
         # Requête HTTP sur la page cible
     def _url_request(self):
@@ -80,43 +83,37 @@ class UrlScrapper:
         return False
 
     def insert_links(self):
-        r = self._url_request()
-        if r is not None:
-            soup = bs4.BeautifulSoup(r.content, 'html.parser')
-            decompte = 0
+        if self.request is not None:
 
-            for link in self._absolute_links(soup):
+            for link in self._absolute_links(self.soup):
                 if self.list_directories is None:
                     self.list_directories = []
                 if self._check_scope(link):
                     if not self._inserted_urls(link):
-                        self.collection_session.insert_one({"url_de_la_page": f"{r.url}", "url_du_lien": f"{link}"})
+                        self.collection_session.insert_one({"url_de_la_page": f"{self.request.url}", "url_du_lien": f"{link}", "status": "pending"})
                         print(f"Bien inséré à la db :{link}")
 
-
-    def _textscrap(self, soup):
+    def _textscrap(self):
         h1 = []
         h2 = []
         titre = []
         important = []
-        for text in soup.findAll('title'):
+        for text in self.soup.findAll('title'):
             titre.append(text.text)
-        for text in soup.findAll('h1'):
+        for text in self.soup.findAll('h1'):
             h1.append(text.text)
-        for text in soup.findAll('h2'):
+        for text in self.soup.findAll('h2'):
             h2.append(text.text)
-        for text in soup.findAll(['b', 'strong', 'em']):
+        for text in self.soup.findAll(['b', 'strong', 'em']):
             important.append(text.text)
 
-        return{"HTML": str(soup.prettify), "titre": titre, "h1": h1, "h2": h2, "élément en gras": important}
+        return{"HTML": str(self.soup.prettify), "titre": titre, "h1": h1, "h2": h2, "élément en gras": important}
 
     def insert_document(self):
-        r = self._url_request()
-        if r is not None:
-            soup = bs4.BeautifulSoup(r.content, 'html.parser')
+        if self.request is not None:
+            soup = bs4.BeautifulSoup(self.request.content, 'html.parser')
 
             # A compléter avec la strcture attendue par la collection "data"
-            document = {"url": self.url, "data": self._textscrap(soup)}
+            document = {"url": self.url, "data": self._textscrap()}
 
             self.collection_data.insert_one(document)
-
