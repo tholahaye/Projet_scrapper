@@ -119,5 +119,7 @@ class UrlScrapper:
         soup = bs4.BeautifulSoup(r.content, 'html.parser')
 
         # A compléter avec la strcture attendue par la collection "data"
-        self.collection_data.insert_one({"url": self.url, "data": self._textscrap(soup)})
+        document = {"url": self.url, "data": self._textscrap(soup)}
+        
+        self.collection_data.insert_one(document)
 
