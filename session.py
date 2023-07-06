@@ -2,12 +2,13 @@ import liste_url
 
 
 class ScrapingSession:
-    def __init__(self, url, collection_session, collection_data,
-                 list_domains,list_directories=None, limite=10):
+    def __init__(self, url, collection_session, collection_data, collection_sessionUrlEvents,
+                 list_domains, list_directories=None, limite=10):
         self.url = url
         self.url_in_progress = None
         self.collection_session = collection_session
         self.collection_data = collection_data
+        self.collection_sessionUrlEvents = collection_sessionUrlEvents
         self.list_domains = list_domains
         self.list_directories = list_directories
         self.limite = limite
@@ -22,8 +23,11 @@ class ScrapingSession:
         while self.scraped_url < self.limite:
             self.scraped_url += 1
             self.select_url()
-            scraper = liste_url.UrlScraper(self.url_in_progress, self.collection_session,
-                                           self.collection_data, self.id_session, self.list_domains, self.list_directories)
+            scraper = liste_url.UrlScraper(url=self.url_in_progress, collection_session_ip=self.collection_session,
+                                           collection_data=self.collection_data,
+                                           collection_sessionUrlEvents=self.collection_sessionUrlEvents,
+                                           id_session=self.id_session,
+                                           list_domains=self.list_domains, list_directories=self.list_directories)
             scraper.insert_links()
             scraper.insert_document()
             print(f"{self.url_in_progress} is done")

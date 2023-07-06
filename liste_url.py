@@ -5,10 +5,12 @@ import traceback
 
 
 class UrlScraper:
-    def __init__(self, url, collection_session_ip, collection_data, id_session, list_domains, list_directories=None):
+    def __init__(self, url, collection_session_ip, collection_data, collection_sessionUrlEvents,
+                 id_session, list_domains, list_directories=None):
         self.url = url
         self.collection_session = collection_session_ip
         self.collection_data = collection_data
+        self.collection_sessionUrlEvents = collection_sessionUrlEvents
         self.id_session = id_session
         self.list_domains = list_domains
         self.list_directories = list_directories
@@ -126,8 +128,7 @@ class UrlScraper:
         if self.request is not None:
 
             parsed = self._textscrap()
-            # A compléter avec la strcture attendue par la collection "data"
-            document = { "url": self.url, "html": parsed["html"],
-                         "metadata": parsed["metadata"], "id_session": self.id_session}
+            document = {"url": self.url, "html": parsed["html"],
+                        "metadata": parsed["metadata"], "id_session": self.id_session}
 
             self.collection_data.insert_one(document)
