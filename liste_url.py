@@ -8,12 +8,12 @@ from datetime import datetime
 
 
 class UrlScraper:
-    def __init__(self, url, collection_session_ip, collection_data, collection_session_url_events,
+    def __init__(self, url, collection_url, collection_data, collection_session_events,
                  id_session, list_domains, list_directories=None):
         self.url = url
-        self.collection_session = collection_session_ip
+        self.collection_url = collection_url
         self.collection_data = collection_data
-        self.collection_session_url_events = collection_session_url_events
+        self.collection_session_events = collection_session_events
         self.id_session = id_session
         self.list_domains = list_domains
         self.list_directories = list_directories
@@ -90,10 +90,9 @@ class UrlScraper:
 
     # Fonction qui renvoit True si l'url est déjà dans la collection cible, False sinon.
     def _inserted_urls(self, link):
-        for document in self.collection_session.find():
-            if document["url_du_lien"] == link:
-                print(f"{link} déja dans la base")
-                return True
+        if self.collection_url.find_one({"url_du_lien": link}) is not None:
+            print(f"{link} déja dans la base")
+            return True
         return False
 
     def insert_links(self):
@@ -104,7 +103,7 @@ class UrlScraper:
                     self.list_directories = []
                 if self._check_scope(link):
                     if not self._inserted_urls(link):
-                        self.collection_session.insert_one({"url_de_la_page": f"{self.request.url}",
+                        self.collection_url.insert_one({"url_de_la_page": f"{self.request.url}",
                                                             "url_du_lien": f"{link}", "status": "pending",
                                                             "id_session": self.id_session})
                         print(f"Bien inséré à la db :{link}")
