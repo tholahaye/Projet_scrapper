@@ -1,13 +1,11 @@
 import liste_url
 import socket
-from _datetime import datetime
+from datetime import datetime
 
 
 class ScrapingSession:
     def __init__(self, url, collection_url, collection_data, collection_session_events, collection_data_session,
                  list_domains, list_directories=None, limite=10):
-    def __init__(self, url, collection_session, collection_data, collection_session_url_events,
-                 list_domains, list_directories=None, limite=2):
         self.url = url
         self.url_in_progress = None
         self.collection_url = collection_url
@@ -18,10 +16,11 @@ class ScrapingSession:
         self.list_directories = list_directories
         self.limite = limite
         self.scraped_url = 0
-        self.name = socket.gethostname()
-        self.collection_session.insert_one({"url_de_la_page": f"{self.url}",
-                                            "url_du_lien": f"{self.url}", "status": "pending"})
-        query = self.collection_session.find_one({"url_du_lien": self.url})
+        self.host_name = socket.gethostname()
+        self.session_log("start")
+
+        query = self.collection_data_session.find_one({"start_url": self.url, "status": "in progress"})
+
         self.id_session = query["_id"]
         self.collection_url.insert_one({"url_de_la_page": f"{self.url}",
                                             "url_du_lien": f"{self.url}", "status": "pending",
