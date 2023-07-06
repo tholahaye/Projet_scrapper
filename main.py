@@ -24,7 +24,7 @@ collection_data_test = db_test.url_data
 
 #Définition du scope:
 list_domains = ["fr.wikipedia.org", "wikimedia.org"]
-list_directories = ["/wiki/","/w/"]
+list_directories = ["/wiki/", "/w/"]
 
 url_start ="https://fr.wikipedia.org/wiki/Garnier_de_Rochefort" #input("URL : ")
 
