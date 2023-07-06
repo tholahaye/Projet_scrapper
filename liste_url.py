@@ -3,6 +3,8 @@ import bs4
 from urllib.parse import urljoin, urlparse
 import traceback
 import time
+import socket
+from datetime import datetime
 
 
 class UrlScraper:
@@ -17,37 +19,41 @@ class UrlScraper:
         self.list_directories = list_directories
         self.links_with_text = set()
         self.request = self._url_request()
+        #self.host_name = socket.gethostname()
         if self.request is not None:
             self.soup = bs4.BeautifulSoup(self.request.content, 'html.parser')
 
         # Requête HTTP sur la page cible
     def _url_request(self):
+        self.collection_session_url_events.insert_one({"idSession": self.id_session,
+                                                       "url": self.url,
+                                                       #"machineID": self.host_name,
+                                                       "dateEvent": datetime.now(),
+                                                       "eventType": "launch",
+                                                       "eventMessage": f"launch scraping on {self.url}"})
         result = None
-        nb_requests = 0
-        while nb_requests < 10:
-            if nb_requests > 1:
+        for nb_requests in range(10):
+            if nb_requests > 0:
                 time.sleep(60)
             try:
                 result = requests.get(self.url)
             except requests.ConnectionError:
                 print("Erreur de connection")
-                nb_requests += 1
+                continue
             except requests.Timeout:
                 print("La requête prend trop de temps.")
-                nb_requests += 1
+                continue
             except requests.TooManyRedirects:
                 print("La requête excède la limite de redirection.")
-                nb_requests += 1
+                break
             except Exception:
                 print(traceback.format_exc())
                 break
             if result.status_code == 200:
                 # log de réussite de connection qui contient l'id_session les cookies
-
                 return result
             print(result.status_code)
             # Ajout du log de l'erreur ?
-            nb_requests += 1
 
     def _check_domain(self, link):
         parsed_url = urlparse(link)

@@ -4,7 +4,7 @@ import socket
 
 class ScrapingSession:
     def __init__(self, url, collection_session, collection_data, collection_session_url_events,
-                 list_domains, list_directories=None, limite=10):
+                 list_domains, list_directories=None, limite=2):
         self.url = url
         self.url_in_progress = None
         self.collection_session = collection_session
@@ -13,7 +13,7 @@ class ScrapingSession:
         self.list_domains = list_domains
         self.list_directories = list_directories
         self.limite = limite
-        self.scraped_url = scrapped_url
+        self.scraped_url = 0
         self.name = socket.gethostname()
         self.collection_session.insert_one({"url_de_la_page": f"{self.url}",
                                             "url_du_lien": f"{self.url}", "status": "pending"})
