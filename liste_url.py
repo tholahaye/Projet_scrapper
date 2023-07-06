@@ -98,22 +98,34 @@ class UrlScraper:
         h1 = []
         h2 = []
         titre = []
-        important = []
+        b = []
+        strong = []
+        em = []
         for text in self.soup.findAll('title'):
             titre.append(text.text)
         for text in self.soup.findAll('h1'):
             h1.append(text.text)
         for text in self.soup.findAll('h2'):
             h2.append(text.text)
-        for text in self.soup.findAll(['b', 'strong', 'em']):
-            important.append(text.text)
+        for text in self.soup.findAll(['b']):
+            b.append(text.text)
+        for text in self.soup.findAll(['strong']):
+            strong.append(text.text)
+        for text in self.soup.findAll(['em']):
+            em.append(text.text)
 
-        return{"HTML": str(self.soup.prettify), "titre": titre, "h1": h1, "h2": h2, "élément en gras": important}
+        return{"html": str(self.soup.prettify),
+               "metadata": {
+                   "titles": {"title": titre, "h1": h1, "h2": h2},
+                   "emphasises": {"b": b, "strong": strong, "em": em}
+               }}
 
     def insert_document(self):
         if self.request is not None:
 
+            parsed = self._textscrap
+
             # A compléter avec la strcture attendue par la collection "data"
-            document = {"url": self.url, "data": self._textscrap()}
+            document = {"url": self.url, "html": parsed["html"], "metadata": parsed["metadata"]}
 
             self.collection_data.insert_one(document)
