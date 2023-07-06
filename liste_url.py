@@ -25,7 +25,7 @@ class UrlScraper:
 
         # Requête HTTP sur la page cible
     def _url_request(self):
-        self.collection_session_url_events.insert_one({"idSession": self.id_session,
+        self.collection_session_events.insert_one({"idSession": self.id_session,
                                                        "url": self.url,
                                                        #"machineID": self.host_name,
                                                        "dateEvent": datetime.now(),
