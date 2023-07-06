@@ -5,7 +5,7 @@ from datetime import datetime
 
 class ScrapingSession:
     def __init__(self, url, collection_url, collection_data, collection_session_events, collection_data_session,
-                 list_domains, list_directories=None, limite=10):
+                 list_domains, list_directories=None, limite=2):
         self.url = url
         self.url_in_progress = None
         self.collection_url = collection_url
