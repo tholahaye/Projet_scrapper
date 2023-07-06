@@ -6,6 +6,7 @@ import sys
 
 class ScrapingSession:
     def __init__(self, url, collection_url, collection_data, collection_session_events, collection_data_session,
+                 collection_session_domains, collection_session_dir_prefix,
                  list_domains, list_directories=None, limite=2):
         self.url = url
         self.url_in_progress = None
@@ -13,6 +14,8 @@ class ScrapingSession:
         self.collection_data = collection_data
         self.collection_session_events = collection_session_events
         self.collection_data_session = collection_data_session
+        self.collection_session_domains = collection_session_domains
+        self.collection_session_dir_prefix = collection_session_dir_prefix
         self.list_domains = list_domains
         self.list_directories = list_directories
         self.limite = limite
@@ -30,6 +33,14 @@ class ScrapingSession:
         # Insertion du log de demarrage de la session
         self.collection_session_events.insert_one({"id_session": self.id_session, "machine_ID": self.host_name,
                                                    "datetime": datetime.now(), "event_type": "Session starting"})
+        # wrinting of the domains in the database
+        for domain in self.list_domains:
+            self.collection_session_domains.insert_one({"id_session": self.id_session, "domain": domain})
+        # wrinting of the directory prefixes in the database
+        if len(self.list_directories)>0:
+            for dir_prefix in self.list_directories:
+                self.collection_session_dir_prefix.insert_one({"id_session": self.id_session, "dir_prefix": dir_prefix}),
+
 
     def check_list_domains_empty(self):
         if self.list_domains is not None:

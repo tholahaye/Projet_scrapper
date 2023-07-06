@@ -10,13 +10,19 @@ collection_url = db_test.url_list
 # Création d'un index sur "url" de collection_url
 collection_url.create_index([("url", pymongo.ASCENDING)])
 
-# Création de la collection_session_events
-collection_session_events_test = db_test.session_events
-
 # Création de la collection_data_session
 collection_data_session = db_test.data_session
 # Création d'un index sur "url" de collection_url
 collection_url.create_index([("status", pymongo.ASCENDING)])
+
+# Création de la collection_session_events
+collection_session_events_test = db_test.session_events
+
+# Création de la collection_session_domains
+collection_session_domains_test = db_test.session_domains
+
+# Création de la collection_session_dir_prefix
+collection_session_dir_prefix_test = db_test.session_dir_prefix
 
 #Création de la collection_data
 collection_data_test = db_test.url_data
@@ -33,6 +39,8 @@ session = session.ScrapingSession(url=url_start, collection_url=collection_url,
                                   collection_data=collection_data_test,
                                   collection_session_events=collection_session_events_test,
                                   collection_data_session=collection_data_session,
+                                  collection_session_domains=collection_session_domains_test,
+                                  collection_session_dir_prefix=collection_session_dir_prefix_test,
                                   list_domains=list_domains, list_directories=list_directories)
 session.scraping_loop()
 print("Done")
