@@ -123,7 +123,7 @@ class UrlScraper:
     def insert_document(self):
         if self.request is not None:
 
-            parsed = self._textscrap
+            parsed = self._textscrap()
 
             # A compléter avec la strcture attendue par la collection "data"
             document = {"url": self.url, "html": parsed["html"], "metadata": parsed["metadata"]}
