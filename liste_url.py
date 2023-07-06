@@ -21,6 +21,7 @@ class UrlScraper:
         self.request = self._url_request()
         #self.host_name = socket.gethostname()
         self.inserted_links_cpt = 0
+        self.host_name = socket.gethostname()
         if self.request is not None:
             self.soup = bs4.BeautifulSoup(self.request.content, 'html.parser')
 
@@ -127,7 +128,7 @@ class UrlScraper:
 
     # Fonction qui renvoit True si l'url est déjà dans la collection cible, False sinon.
     def _inserted_urls(self, link):
-        if self.collection_url.find_one({"url_du_lien": link}) is not None:
+        if self.collection_url.find_one({"url": link}) is not None:
             print(f"{link} déja dans la base")
             return True
         return False
@@ -140,8 +141,7 @@ class UrlScraper:
                     self.list_directories = []
                 if self._check_scope(link):
                     if not self._inserted_urls(link):
-                        self.collection_url.insert_one({"url_de_la_page": f"{self.request.url}",
-                                                            "url_du_lien": f"{link}", "status": "pending",
+                        self.collection_url.insert_one({"url": f"{link}", "status": "pending",
                                                             "id_session": self.id_session})
                         self.inserted_links_cpt += 1
                         print(f"Bien inséré à la db :{link}")

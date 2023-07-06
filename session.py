@@ -1,6 +1,7 @@
 import liste_url
 import socket
 from datetime import datetime
+import sys
 
 
 class ScrapingSession:
@@ -17,20 +18,30 @@ class ScrapingSession:
         self.limite = limite
         self.scraped_url = 0
         self.host_name = socket.gethostname()
+        if not self.check_list_domains_empty():
+            print("Erreur: la liste de domaines est vide.")
+            sys.exit()
         self.session_log("start")
-
         query = self.collection_data_session.find_one({"start_url": self.url, "status": "in progress"})
 
         self.id_session = query["_id"]
         self.collection_url.insert_one({"url_de_la_page": f"{self.url}",
                                             "url_du_lien": f"{self.url}", "status": "pending",
                                         "id_session": self.id_session})
-        # Insertion du log de demarrage de la session ?
-        # self.collection_session_events.insert_one({"id_session": self.id_session, "machine_ID": self.host_name, "datetime": datetime.now(), "event_type": "Session starting"})
+        # Insertion du log de demarrage de la session
+        self.collection_session_events.insert_one({"id_session": self.id_session, "machine_ID": self.host_name,
+                                                   "datetime": datetime.now(), "event_type": "Session starting"})
 
+    def check_list_domains_empty(self):
+        if self.list_domains is not None:
+            for domain in self.list_domains:
+                if domain != "":
+                    return True
+        return False
     def session_log(self, status):
         if status == "start":
-            self.collection_data_session.insert_one({"start_url": self.url, "start_datetime": datetime.now(), "status": "in progress"})
+            self.collection_data_session.insert_one({"start_url": self.url,
+                                                     "start_datetime": datetime.now(), "status": "in progress"})
         if status == "done":
             self.collection_data_session.update_one({"_id": self.id_session}, {"$set": {"status": "done"}})
 
