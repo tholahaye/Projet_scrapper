@@ -12,17 +12,18 @@ class ScrapingSession:
         self.list_directories = list_directories
         self.limite = limite
         self.scraped_url = 0
-
-        self.collection_session.insert_one({"url_de_la_page": f"{self.url}", "url_du_lien": f"{self.url}",
-                                            "status": "pending"})
-
+        self.collection_session.insert_one({"url_de_la_page": f"{self.url}",
+                                            "url_du_lien": f"{self.url}", "status": "pending"})
+        query = self.collection_session.find_one({"url_du_lien": self.url})
+        self.id_session = query["_id"]
+        self.collection_session.update_one({"url_du_lien": self.url}, {"$set": {"session_id": self.id_session}})
     def scraping_loop(self):
 
         while self.scraped_url < self.limite:
             self.scraped_url += 1
             self.select_url()
-            scraper = liste_url.UrlScraper(self.url_in_progress, self.collection_session, self.collection_data,
-                                           self.list_domains, self.list_directories)
+            scraper = liste_url.UrlScraper(self.url_in_progress, self.collection_session,
+                                           self.collection_data, self.id_session, self.list_domains, self.list_directories)
             scraper.insert_links()
             scraper.insert_document()
             print(f"{self.url_in_progress} is done")

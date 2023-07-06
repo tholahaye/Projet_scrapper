@@ -5,10 +5,11 @@ import traceback
 
 
 class UrlScraper:
-    def __init__(self, url, collection_session_ip, collection_data, list_domains, list_directories=None):
+    def __init__(self, url, collection_session_ip, collection_data, id_session, list_domains, list_directories=None):
         self.url = url
         self.collection_session = collection_session_ip
         self.collection_data = collection_data
+        self.id_session = id_session
         self.list_domains = list_domains
         self.list_directories = list_directories
         self.links_with_text = set()
@@ -91,7 +92,8 @@ class UrlScraper:
                 if self._check_scope(link):
                     if not self._inserted_urls(link):
                         self.collection_session.insert_one({"url_de_la_page": f"{self.request.url}",
-                                                            "url_du_lien": f"{link}", "status": "pending"})
+                                                            "url_du_lien": f"{link}", "status": "pending",
+                                                            "id_session": self.id_session})
                         print(f"Bien inséré à la db :{link}")
 
     def _textscrap(self):
@@ -123,9 +125,9 @@ class UrlScraper:
     def insert_document(self):
         if self.request is not None:
 
-            parsed = self._textscrap
-
+            parsed = self._textscrap()
             # A compléter avec la strcture attendue par la collection "data"
-            document = {"url": self.url, "html": parsed["html"], "metadata": parsed["metadata"]}
+            document = { "url": self.url, "html": parsed["html"],
+                         "metadata": parsed["metadata"], "id_session": self.id_session}
 
             self.collection_data.insert_one(document)
