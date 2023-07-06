@@ -33,14 +33,14 @@ class ScrapingSession:
         # Insertion du log de demarrage de la session
         self.collection_session_events.insert_one({"id_session": self.id_session, "machine_ID": self.host_name,
                                                    "datetime": datetime.now(), "event_type": "Session starting"})
-        # wrinting of the domains in the database
+        # writing of the domains in the database
         for domain in self.list_domains:
             self.collection_session_domains.insert_one({"id_session": self.id_session, "domain": domain})
-        # wrinting of the directory prefixes in the database
-        if len(self.list_directories)>0:
+        # writing of the directory prefixes in the database
+        if len(self.list_directories) > 0:
             for dir_prefix in self.list_directories:
-                self.collection_session_dir_prefix.insert_one({"id_session": self.id_session, "dir_prefix": dir_prefix}),
-
+                self.collection_session_dir_prefix.insert_one({"id_session": self.id_session,
+                                                               "dir_prefix": dir_prefix}),
 
     def check_list_domains_empty(self):
         if self.list_domains is not None:
@@ -48,6 +48,7 @@ class ScrapingSession:
                 if domain != "":
                     return True
         return False
+
     def session_log(self, status):
         if status == "start":
             self.collection_data_session.insert_one({"start_url": self.url,

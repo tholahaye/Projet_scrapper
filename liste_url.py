@@ -19,7 +19,7 @@ class UrlScraper:
         self.list_directories = list_directories
         self.links_with_text = set()
         self.request = self._url_request()
-        #self.host_name = socket.gethostname()
+        self.host_name = socket.gethostname()
         self.inserted_links_cpt = 0
         if self.request is not None:
             self.soup = bs4.BeautifulSoup(self.request.content, 'html.parser')
@@ -27,11 +27,11 @@ class UrlScraper:
         # Requête HTTP sur la page cible
     def _url_request(self):
         self.collection_session_events.insert_one({"idSession": self.id_session,
-                                                       "url": self.url,
-                                                       #"machine_ID": self.host_name,
-                                                       "dateEvent": datetime.now(),
-                                                       "eventType": "launch url scraping",
-                                                       "eventMessage": f"launch scraping on {self.url}"})
+                                                   "url": self.url,
+                                                   #"machine_ID": self.host_name,
+                                                   "dateEvent": datetime.now(),
+                                                   "eventType": "launch url scraping",
+                                                   "eventMessage": f"launch scraping on {self.url}"})
         result = None
         for nb_requests in range(11):
             if nb_requests > 0:
@@ -42,7 +42,8 @@ class UrlScraper:
                                                            #"machine_ID": self.host_name,
                                                            "dateEvent": datetime.now(),
                                                            "eventType": "url scraping abortion",
-                                                           "eventMessage": f"{nb_requests +1} tentatives have failed to scrap {self.url}, request abortion"})
+                                                           "eventMessage": f"{nb_requests +1} tentatives have failed "
+                                                                           f"to scrap {self.url}, request abortion"})
             try:
                 result = requests.get(self.url)
             except requests.ConnectionError:
@@ -52,7 +53,9 @@ class UrlScraper:
                                                            #"machine_ID": self.host_name,
                                                            "dateEvent": datetime.now(),
                                                            "eventType": "url scraping error",
-                                                           "eventMessage": f"Connection error when scraping {self.url} after {nb_requests+1} attempt(s), process is trying again"})
+                                                           "eventMessage": f"Connection error when scraping {self.url} "
+                                                                           f"after {nb_requests+1} attempt(s), "
+                                                                           f"process is trying again"})
                 continue
             except requests.Timeout:
                 #print("La requête prend trop de temps.")
@@ -61,7 +64,9 @@ class UrlScraper:
                                                            #"machine_ID": self.host_name,
                                                            "dateEvent": datetime.now(),
                                                            "eventType": "url scraping error",
-                                                           "eventMessage": f"Time out event when scraping {self.url} after {nb_requests + 1} attempt(s), process is trying again"})
+                                                           "eventMessage": f"Time out event when scraping {self.url} "
+                                                                           f"after {nb_requests + 1} attempt(s), "
+                                                                           f"process is trying again"})
                 continue
             except requests.TooManyRedirects:
                 #print("La requête excède la limite de redirection.")
@@ -70,7 +75,8 @@ class UrlScraper:
                                                            #"machine_ID": self.host_name,
                                                            "dateEvent": datetime.now(),
                                                            "eventType": "url scraping abortion",
-                                                           "eventMessage": f"Too many redirections when scraping {self.url}, request abortion"})
+                                                           "eventMessage": f"Too many redirections when scraping "
+                                                                           f"{self.url}, request abortion"})
                 break
             except Exception:
                 #print(traceback.format_exc())
@@ -79,7 +85,8 @@ class UrlScraper:
                                                            #"machine_ID": self.host_name,
                                                            "dateEvent": datetime.now(),
                                                            "eventType": "url scraping abortion",
-                                                           "eventMessage": f"{traceback.format_exc()} when scraping {self.url}, request abortion"})
+                                                           "eventMessage": f"{traceback.format_exc()} when scraping "
+                                                                           f"{self.url}, request abortion"})
                 break
             if result.status_code == 200:
                 # log de réussite de connection qui contient l'id_session les cookies
@@ -90,7 +97,9 @@ class UrlScraper:
                                                        #"machine_ID": self.host_name,
                                                        "dateEvent": datetime.now(),
                                                        "eventType": "url scraping error",
-                                                       "eventMessage": f"{result.status_code} returned when scraping {self.url} after {nb_requests + 1} attempt(s), process is trying again"})
+                                                       "eventMessage": f"{result.status_code} returned when scraping "
+                                                                       f"{self.url} after {nb_requests + 1} attempt(s),"
+                                                                       f" process is trying again"})
 
     def _check_domain(self, link):
         parsed_url = urlparse(link)
@@ -141,7 +150,7 @@ class UrlScraper:
                 if self._check_scope(link):
                     if not self._inserted_urls(link):
                         self.collection_url.insert_one({"url": f"{link}", "status": "pending",
-                                                            "id_session": self.id_session})
+                                                        "id_session": self.id_session})
                         self.inserted_links_cpt += 1
                         print(f"Bien inséré à la db :{link}")
 
@@ -184,5 +193,6 @@ class UrlScraper:
                                                        #"machine_ID": self.host_name,
                                                        "dateEvent": datetime.now(),
                                                        "eventType": "url scraping completion",
-                                                       "eventMessage": f"scraping on {self.url} completed, data inserted and addition of {self.inserted_links_cpt} new links"})
-
+                                                       "eventMessage": f"scraping on {self.url} completed, "
+                                                                       f"data inserted and addition of "
+                                                                       f"{self.inserted_links_cpt} new links"})
