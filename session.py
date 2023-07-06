@@ -2,13 +2,13 @@ import liste_url
 
 
 class ScrapingSession:
-    def __init__(self, url, collection_session, collection_data, collection_sessionUrlEvents,
+    def __init__(self, url, collection_session, collection_data, collection_session_url_events,
                  list_domains, list_directories=None, limite=10):
         self.url = url
         self.url_in_progress = None
         self.collection_session = collection_session
         self.collection_data = collection_data
-        self.collection_sessionUrlEvents = collection_sessionUrlEvents
+        self.collection_session_url_events = collection_session_url_events
         self.list_domains = list_domains
         self.list_directories = list_directories
         self.limite = limite
@@ -25,7 +25,7 @@ class ScrapingSession:
             self.select_url()
             scraper = liste_url.UrlScraper(url=self.url_in_progress, collection_session_ip=self.collection_session,
                                            collection_data=self.collection_data,
-                                           collection_sessionUrlEvents=self.collection_sessionUrlEvents,
+                                           collection_session_url_events=self.collection_session_url_events,
                                            id_session=self.id_session,
                                            list_domains=self.list_domains, list_directories=self.list_directories)
             scraper.insert_links()

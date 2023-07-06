@@ -6,12 +6,12 @@ import time
 
 
 class UrlScraper:
-    def __init__(self, url, collection_session_ip, collection_data, collection_sessionUrlEvents,
+    def __init__(self, url, collection_session_ip, collection_data, collection_session_url_events,
                  id_session, list_domains, list_directories=None):
         self.url = url
         self.collection_session = collection_session_ip
         self.collection_data = collection_data
-        self.collection_sessionUrlEvents = collection_sessionUrlEvents
+        self.collection_session_url_events = collection_session_url_events
         self.id_session = id_session
         self.list_domains = list_domains
         self.list_directories = list_directories
