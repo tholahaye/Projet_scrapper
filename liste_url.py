@@ -2,6 +2,7 @@ import requests
 import bs4
 from urllib.parse import urljoin, urlparse
 import traceback
+import time
 
 
 class UrlScraper:
@@ -24,6 +25,8 @@ class UrlScraper:
         result = None
         nb_requests = 0
         while nb_requests < 10:
+            if nb_requests > 1:
+                time.sleep(60)
             try:
                 result = requests.get(self.url)
             except requests.ConnectionError:
