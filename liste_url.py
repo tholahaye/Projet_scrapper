@@ -40,6 +40,8 @@ class UrlScraper:
                 print(traceback.format_exc())
                 break
             if result.status_code == 200:
+                # log de réussite de connection qui contient l'id_session les cookies
+
                 return result
             print(result.status_code)
             # Ajout du log de l'erreur ?

@@ -1,9 +1,10 @@
 import liste_url
+import socket
 
 
 class ScrapingSession:
     def __init__(self, url, collection_session, collection_data,
-                 list_domains,list_directories=None, limite=10):
+                 list_domains, list_directories=None, limite=10, scrapped_url=0):
         self.url = url
         self.url_in_progress = None
         self.collection_session = collection_session
@@ -11,12 +12,14 @@ class ScrapingSession:
         self.list_domains = list_domains
         self.list_directories = list_directories
         self.limite = limite
-        self.scraped_url = 0
+        self.scraped_url = scrapped_url
+        self.name = socket.gethostname()
         self.collection_session.insert_one({"url_de_la_page": f"{self.url}",
                                             "url_du_lien": f"{self.url}", "status": "pending"})
         query = self.collection_session.find_one({"url_du_lien": self.url})
         self.id_session = query["_id"]
         self.collection_session.update_one({"url_du_lien": self.url}, {"$set": {"session_id": self.id_session}})
+
     def scraping_loop(self):
 
         while self.scraped_url < self.limite:
