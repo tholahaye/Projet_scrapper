@@ -23,7 +23,8 @@ class ScrapingSession:
             self.scraped_url += 1
             self.select_url()
             scraper = liste_url.UrlScraper(self.url_in_progress, self.collection_session,
-                                           self.collection_data, self.id_session, self.list_domains, self.list_directories)
+                                           self.collection_data, self.id_session,
+                                           self.list_domains, self.list_directories)
             scraper.insert_links()
             scraper.insert_document()
             print(f"{self.url_in_progress} is done")
