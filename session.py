@@ -25,8 +25,7 @@ class ScrapingSession:
         query = self.collection_data_session.find_one({"start_url": self.url, "status": "in progress"})
 
         self.id_session = query["_id"]
-        self.collection_url.insert_one({"url_de_la_page": f"{self.url}",
-                                            "url_du_lien": f"{self.url}", "status": "pending",
+        self.collection_url.insert_one({"url": f"{self.url}", "status": "pending",
                                         "id_session": self.id_session})
         # Insertion du log de demarrage de la session
         self.collection_session_events.insert_one({"id_session": self.id_session, "machine_ID": self.host_name,
@@ -68,12 +67,12 @@ class ScrapingSession:
 
         else:
             query = self.collection_url.find_one({"status": "pending"})
-            self.url_in_progress = query["url_du_lien"]
+            self.url_in_progress = query["url"]
             print(self.url_in_progress)
-        url_id = self.collection_url.find_one({"url_du_lien": self.url_in_progress})["_id"]
+        url_id = self.collection_url.find_one({"url": self.url_in_progress})["_id"]
         self.collection_url.update_one({"_id": url_id}, {"$set": {"status": "in progress"}})
         return self.url_in_progress
 
     def url_done(self):
-        url_id = self.collection_url.find_one({"url_du_lien": self.url_in_progress})["_id"]
+        url_id = self.collection_url.find_one({"url": self.url_in_progress})["_id"]
         self.collection_url.update_one({"_id": url_id}, {"$set": {"status": "done"}})
