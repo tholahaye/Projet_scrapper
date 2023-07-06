@@ -21,7 +21,7 @@ class ScrapingSession:
         if not self.check_list_domains_empty():
             print("Erreur: la liste de domaines est vide.")
             sys.exit()
-
+        self.session_log("start")
         query = self.collection_data_session.find_one({"start_url": self.url, "status": "in progress"})
 
         self.id_session = query["_id"]
