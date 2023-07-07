@@ -33,7 +33,7 @@ list_domains = ["fr.wikipedia.org", "wikimedia.org"]
 #list_directories = ["/wiki/", "/w/"]
 list_directories = ["/wiki/Garnier_de_Rochefort"]
 
-url_start ="https://fr.wikipedia.org/wiki/Garnier_de_Rochefort" #input("URL : ")
+url_start = "https://fr.wikipedia.org/wiki/Garnier_de_Rochefort"  # input("URL : ")
 
 
 session = session.ScrapingSession(url=url_start, collection_url=collection_url,
@@ -42,6 +42,6 @@ session = session.ScrapingSession(url=url_start, collection_url=collection_url,
                                   collection_data_session=collection_data_session,
                                   collection_session_domains=collection_session_domains_test,
                                   collection_session_dir_prefix=collection_session_dir_prefix_test,
-                                  list_domains=list_domains, list_directories=list_directories)
+                                  list_domains=list_domains, list_directories=list_directories, limit=2)
 session.scraping_loop()
 print("Done")

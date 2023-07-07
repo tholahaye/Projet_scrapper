@@ -7,7 +7,7 @@ import sys
 class ScrapingSession:
     def __init__(self, url, collection_url, collection_data, collection_session_events, collection_data_session,
                  collection_session_domains, collection_session_dir_prefix,
-                 list_domains, list_directories=None, limite=2):
+                 list_domains, list_directories=None, limit=2):
         self.url = url
         self.url_in_progress = None
         self.collection_url = collection_url
@@ -18,12 +18,12 @@ class ScrapingSession:
         self.collection_session_dir_prefix = collection_session_dir_prefix
         self.list_domains = list_domains
         self.list_directories = list_directories
-        self.limite = limite
-        self.scraped_url = 0
+        self.limit = limit
         self.host_name = socket.gethostname()
         if not self.check_list_domains_empty():
             print("Erreur: la liste de domaines est vide.")
             sys.exit()
+
         self.session_log("start")
         query = self.collection_data_session.find_one({"start_url": self.url, "status": "in progress"})
 
@@ -58,12 +58,12 @@ class ScrapingSession:
 
     def scraping_loop(self):
 
-        for n in range(self.limite):
-            self.scraped_url += 1
+        for n in range(self.limit):
             self.select_url()
             scraper = liste_url.UrlScraper(url=self.url_in_progress, collection_url=self.collection_url,
                                            collection_data=self.collection_data,
                                            collection_session_events=self.collection_session_events,
+                                           collection_data_session=self.collection_data_session,
                                            id_session=self.id_session,
                                            list_domains=self.list_domains, list_directories=self.list_directories)
             scraper.insert_links()
