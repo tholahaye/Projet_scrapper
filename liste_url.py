@@ -100,7 +100,6 @@ class UrlScraper:
                 self.collection_data_session.update_one({"_id": self.id_session},
                                                         {"$set": {"cookies": pickle_cookies}})
                 self.cookies = self._get_cookies()
-                print(f"LES COOKIES SONT : {self.cookies}")
                 return result
             print(result.status_code)
             self.collection_session_events.insert_one({"idSession": self.id_session,
@@ -116,7 +115,7 @@ class UrlScraper:
         result = None
         query = self.collection_data_session.find_one({"_id": self.id_session})
         try:
-            result = pickle.loads(bytes(query["cookies"], 'utf-8'))
+            result = pickle.loads(query["cookies"])
         except KeyError:
             pass
         return result
