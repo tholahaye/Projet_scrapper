@@ -21,7 +21,7 @@ class UrlScraper:
         self.list_directories = list_directories
         self.links_with_text = set()
         self.host_name = socket.gethostname()
-        self.cookies = self._get_cookies()
+        #self.cookies = self._get_cookies()
         # Requête HTTP sur la page cible
         self.request = self._url_request()
 
@@ -50,7 +50,7 @@ class UrlScraper:
                 break
             try:
 
-                result = requests.get(self.url, cookies=self.cookies)
+                result = requests.get(self.url)#, cookies=self.cookies)
 
             except requests.ConnectionError:
                 print("Erreur de connection")
@@ -96,11 +96,11 @@ class UrlScraper:
                 break
             if result.status_code == 200:
                 # Ajout des cookies à data_session
-                pickle_cookies = pickle.dumps(result.cookies)
-                self.collection_data_session.update_one({"_id": self.id_session},
-                                                        {"$set": {"cookies": pickle_cookies}})
-                self.cookies = self._get_cookies()
-                print(f"LES COOKIES SONT : {self.cookies}")
+                #pickle_cookies = pickle.dumps(result.cookies)
+                #self.collection_data_session.update_one({"_id": self.id_session},
+                #                                        {"$set": {"cookies": pickle_cookies}})
+                #self.cookies = self._get_cookies()
+                #print(f"LES COOKIES SONT : {self.cookies}")
                 return result
             print(result.status_code)
             self.collection_session_events.insert_one({"idSession": self.id_session,

@@ -42,6 +42,6 @@ session = session.ScrapingSession(url=url_start, collection_url=collection_url,
                                   collection_data_session=collection_data_session,
                                   collection_session_domains=collection_session_domains_test,
                                   collection_session_dir_prefix=collection_session_dir_prefix_test,
-                                  list_domains=list_domains, list_directories=list_directories, limit=20)
+                                  list_domains=list_domains, list_directories=list_directories, limit=10)
 session.scraping_loop()
 print("Done")

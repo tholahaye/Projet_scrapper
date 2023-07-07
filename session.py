@@ -94,12 +94,13 @@ class ScrapingSession:
             query = self.collection_url.find_one({"status": "pending", "id_session": self.id_session})
             if query is not None:
                 self.url_in_progress = query["url"]
+                url_id = self.collection_url.find_one({"url": self.url_in_progress})["_id"]
+                self.collection_url.update_one({"_id": url_id}, {"$set": {"status": "in progress"}})
             else:
                 self.url_in_progress = "None"
 
 
-        url_id = self.collection_url.find_one({"url": self.url_in_progress})["_id"]
-        self.collection_url.update_one({"_id": url_id}, {"$set": {"status": "in progress"}})
+
 
     def url_done(self):
         url_id = self.collection_url.find_one({"url": self.url_in_progress})["_id"]
