@@ -94,7 +94,7 @@ class ScrapingSession:
                 self.url_error()
             else:
                 scraper.insert_links()
-                scraper.insert_document()
+                scraper.insert_data()
                 print(f"{self.url_in_progress} is done")
                 self.url_done()
 
