@@ -9,11 +9,10 @@ import pickle
 
 
 class UrlScraper:
-    def __init__(self, url, collection_url, collection_data, collection_session_events,
+    def __init__(self, url, collection_url, collection_session_events,
                  collection_data_session, id_session, list_domains, list_directories=None):
         self.url = url
         self.collection_url = collection_url
-        self.collection_data = collection_data
         self.collection_session_events = collection_session_events
         self.collection_data_session = collection_data_session
         self.id_session = id_session

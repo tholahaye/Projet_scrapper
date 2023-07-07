@@ -5,13 +5,12 @@ import sys
 
 
 class ScrapingSession:
-    def __init__(self, url, collection_url, collection_data, collection_session_events, collection_data_session,
+    def __init__(self, url, collection_url, collection_session_events, collection_data_session,
                  collection_session_domains, collection_session_dir_prefix,
                  list_domains, list_directories=None, limit=2):
         self.url = url
         self.url_in_progress = None
         self.collection_url = collection_url
-        self.collection_data = collection_data
         self.collection_session_events = collection_session_events
         self.collection_data_session = collection_data_session
         self.collection_session_domains = collection_session_domains
@@ -68,7 +67,6 @@ class ScrapingSession:
                 break
 
             scraper = liste_url.UrlScraper(url=self.url_in_progress, collection_url=self.collection_url,
-                                           collection_data=self.collection_data,
                                            collection_session_events=self.collection_session_events,
                                            collection_data_session=self.collection_data_session,
                                            id_session=self.id_session,
