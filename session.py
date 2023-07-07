@@ -28,7 +28,9 @@ class ScrapingSession:
                                                        "status": "in progress"})
 
         self.id_session = query["_id"]
-        self.collection_url.insert_one({"url": f"{self.url}", "status": "pending",
+        self.collection_url.insert_one({"url": f"{self.url}",
+                                        "status": "pending",
+                                        "start_datetime": datetime.now(),
                                         "id_session": self.id_session})
         # Insertion du log de demarrage de la session
         self.collection_session_events.insert_one({"id_session": self.id_session,
@@ -121,7 +123,8 @@ class ScrapingSession:
             if query is not None:
                 self.url_in_progress = query["url"]
                 url_id = self.collection_url.find_one({"url": self.url_in_progress})["_id"]
-                self.collection_url.update_one({"_id": url_id}, {"$set": {"status": "in progress"}})
+                self.collection_url.update_one({"_id": url_id}, {"$set": {"status": "in progress",
+                                                                          "start_datetime": datetime.now()}})
             else:
                 self.url_in_progress = "None"
 
