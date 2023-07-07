@@ -9,26 +9,29 @@ from datetime import datetime
 
 class UrlScraper:
     def __init__(self, url, collection_url, collection_data, collection_session_events,
-                 id_session, list_domains, list_directories=None):
+                 collection_data_session, id_session, list_domains, list_directories=None):
         self.url = url
         self.collection_url = collection_url
         self.collection_data = collection_data
         self.collection_session_events = collection_session_events
+        self.collection_data_session = collection_data_session
         self.id_session = id_session
         self.list_domains = list_domains
         self.list_directories = list_directories
         self.links_with_text = set()
-        self.request = self._url_request()
         self.host_name = socket.gethostname()
+        self.cookies = self._get_cookies()
+        # Requête HTTP sur la page cible
+        self.request = self._url_request()
+
         self.inserted_links_cpt = 0
         if self.request is not None:
             self.soup = bs4.BeautifulSoup(self.request.content, 'html.parser')
 
-        # Requête HTTP sur la page cible
     def _url_request(self):
         self.collection_session_events.insert_one({"idSession": self.id_session,
                                                    "url": self.url,
-                                                   #"machine_ID": self.host_name,
+                                                   "machine_ID": self.host_name,
                                                    "dateEvent": datetime.now(),
                                                    "eventType": "launch url scraping",
                                                    "eventMessage": f"launch scraping on {self.url}"})
@@ -39,18 +42,21 @@ class UrlScraper:
             if nb_requests == 10:
                 self.collection_session_events.insert_one({"idSession": self.id_session,
                                                            "url": self.url,
-                                                           #"machine_ID": self.host_name,
+                                                           "machine_ID": self.host_name,
                                                            "dateEvent": datetime.now(),
                                                            "eventType": "url scraping abortion",
                                                            "eventMessage": f"{nb_requests +1} tentatives have failed "
                                                                            f"to scrap {self.url}, request abortion"})
+                break
             try:
-                result = requests.get(self.url)
+
+                result = requests.get(self.url, cookies=self.cookies)
+
             except requests.ConnectionError:
-                #print("Erreur de connection")
+                print("Erreur de connection")
                 self.collection_session_events.insert_one({"idSession": self.id_session,
                                                            "url": self.url,
-                                                           #"machine_ID": self.host_name,
+                                                           "machine_ID": self.host_name,
                                                            "dateEvent": datetime.now(),
                                                            "eventType": "url scraping error",
                                                            "eventMessage": f"Connection error when scraping {self.url} "
@@ -58,10 +64,10 @@ class UrlScraper:
                                                                            f"process is trying again"})
                 continue
             except requests.Timeout:
-                #print("La requête prend trop de temps.")
+                print("La requête prend trop de temps.")
                 self.collection_session_events.insert_one({"idSession": self.id_session,
                                                            "url": self.url,
-                                                           #"machine_ID": self.host_name,
+                                                           "machine_ID": self.host_name,
                                                            "dateEvent": datetime.now(),
                                                            "eventType": "url scraping error",
                                                            "eventMessage": f"Time out event when scraping {self.url} "
@@ -69,37 +75,50 @@ class UrlScraper:
                                                                            f"process is trying again"})
                 continue
             except requests.TooManyRedirects:
-                #print("La requête excède la limite de redirection.")
+                print("La requête excède la limite de redirection.")
                 self.collection_session_events.insert_one({"idSession": self.id_session,
                                                            "url": self.url,
-                                                           #"machine_ID": self.host_name,
+                                                           "machine_ID": self.host_name,
                                                            "dateEvent": datetime.now(),
                                                            "eventType": "url scraping abortion",
                                                            "eventMessage": f"Too many redirections when scraping "
                                                                            f"{self.url}, request abortion"})
                 break
             except Exception:
-                #print(traceback.format_exc())
+                print(traceback.format_exc())
                 self.collection_session_events.insert_one({"idSession": self.id_session,
                                                            "url": self.url,
-                                                           #"machine_ID": self.host_name,
+                                                           "machine_ID": self.host_name,
                                                            "dateEvent": datetime.now(),
                                                            "eventType": "url scraping abortion",
                                                            "eventMessage": f"{traceback.format_exc()} when scraping "
                                                                            f"{self.url}, request abortion"})
                 break
             if result.status_code == 200:
-                # log de réussite de connection qui contient l'id_session les cookies
+                # Ajout des cookies à data_session
+                self.collection_data_session.update_one({"_id": self.id_session}, {"$set": {"cookies": str(result.cookies)}})
+                self.cookies = self._get_cookies()
+                print(result.Session())
+                print(f"LES COOKIES SONT : {self.cookies}")
                 return result
-            #print(result.status_code)
+            print(result.status_code)
             self.collection_session_events.insert_one({"idSession": self.id_session,
                                                        "url": self.url,
-                                                       #"machine_ID": self.host_name,
+                                                       "machine_ID": self.host_name,
                                                        "dateEvent": datetime.now(),
                                                        "eventType": "url scraping error",
                                                        "eventMessage": f"{result.status_code} returned when scraping "
                                                                        f"{self.url} after {nb_requests + 1} attempt(s),"
                                                                        f" process is trying again"})
+
+    def _get_cookies(self):
+        result = None
+        query =self.collection_data_session.find_one({"_id": self.id_session})
+        try:
+            result = query["cookies"]
+        except KeyError:
+            pass
+        return result
 
     def _check_domain(self, link):
         parsed_url = urlparse(link)
@@ -190,7 +209,7 @@ class UrlScraper:
             self.collection_data.insert_one(document)
             self.collection_session_events.insert_one({"idSession": self.id_session,
                                                        "url": self.url,
-                                                       #"machine_ID": self.host_name,
+                                                       "machine_ID": self.host_name,
                                                        "dateEvent": datetime.now(),
                                                        "eventType": "url scraping completion",
                                                        "eventMessage": f"scraping on {self.url} completed, "
