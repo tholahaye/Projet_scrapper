@@ -203,15 +203,8 @@ class UrlScraper:
         if self.request is not None:
 
             parsed = self._textscrap()
-            document = {"url": self.url, "html": parsed["html"],
-                        "metadata": parsed["metadata"], "id_session": self.id_session}
+            document = {"html": parsed["html"],
+                        "metadata": parsed["metadata"]}
 
-            self.collection_data.insert_one(document)
-            self.collection_session_events.insert_one({"idSession": self.id_session,
-                                                       "url": self.url,
-                                                       "machine_ID": self.host_name,
-                                                       "dateEvent": datetime.now(),
-                                                       "eventType": "url scraping completion",
-                                                       "eventMessage": f"scraping on {self.url} completed, "
-                                                                       f"data inserted and addition of "
-                                                                       f"{self.inserted_links_cpt} new links"})
+            self.collection_url.update_one({"url": self.url, "id_session": self.id_session},
+                                           {"$set": {"data": document}})
