@@ -53,7 +53,9 @@ class ScrapingSession:
             self.collection_data_session.insert_one({"start_url": self.url,
                                                      "start_datetime": datetime.now(), "status": "in progress"})
         if status == "completed":
-            self.collection_data_session.update_one({"_id": self.id_session}, {"$set": {"status": "completed"}})
+            self.collection_data_session.update_one({"_id": self.id_session},
+                                                    {"$set": {"status": "completed",
+                                                              "end_datetime": datetime.now()}})
             print("Session completed")
         if status == "interrupted":
             self.collection_data_session.update_one({"_id": self.id_session}, {"$set": {"status": "pause"}})
