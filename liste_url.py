@@ -35,7 +35,6 @@ class UrlScraper:
                                                    "dateEvent": datetime.now(),
                                                    "eventType": "launch url scraping",
                                                    "eventMessage": f"launch scraping on {self.url}"})
-        result = None
         for nb_requests in range(11):
             if nb_requests > 0:
                 time.sleep(60)
@@ -96,9 +95,9 @@ class UrlScraper:
                 break
             if result.status_code == 200:
                 # Ajout des cookies à data_session
-                self.collection_data_session.update_one({"_id": self.id_session}, {"$set": {"cookies": str(result.cookies)}})
+                self.collection_data_session.update_one({"_id": self.id_session},
+                                                        {"$set": {"cookies": str(result.cookies)}})
                 self.cookies = self._get_cookies()
-                print(result.Session())
                 print(f"LES COOKIES SONT : {self.cookies}")
                 return result
             print(result.status_code)
@@ -113,7 +112,7 @@ class UrlScraper:
 
     def _get_cookies(self):
         result = None
-        query =self.collection_data_session.find_one({"_id": self.id_session})
+        query = self.collection_data_session.find_one({"_id": self.id_session})
         try:
             result = query["cookies"]
         except KeyError:
