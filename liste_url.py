@@ -49,7 +49,7 @@ class UrlScraper:
                 break
             try:
 
-                result = requests.get(self.url, cookies=self.cookies)
+                result = requests.get(self.url)  #, cookies=self.cookies
 
             except requests.ConnectionError:
                 print("Erreur de connection")
@@ -97,8 +97,8 @@ class UrlScraper:
                 # Ajout des cookies à data_session
                 self.collection_data_session.update_one({"_id": self.id_session},
                                                         {"$set": {"cookies": str(result.cookies)}})
-                self.cookies = self._get_cookies()
-                print(f"LES COOKIES SONT : {self.cookies}")
+                #self.cookies = self._get_cookies()
+                #print(f"LES COOKIES SONT : {self.cookies}")
                 return result
             print(result.status_code)
             self.collection_session_events.insert_one({"idSession": self.id_session,
