@@ -1,11 +1,11 @@
 import pymongo
 import session
 
-#Création du client MongoDB
+# Création du client MongoDB
 client = pymongo.MongoClient('localhost')
-#Création de la base de données
+# Création de la base de données
 db_test = client.test_scraping
-#Création de la collection_url
+# Création de la collection_url
 collection_url = db_test.url_list
 # Création d'un index sur "url" de collection_url
 collection_url.create_index([("url", pymongo.ASCENDING)])
@@ -24,13 +24,14 @@ collection_session_domains_test = db_test.session_domains
 # Création de la collection_session_dir_prefix
 collection_session_dir_prefix_test = db_test.session_dir_prefix
 
-#Création de la collection_data
+# Création de la collection_data
 collection_data_test = db_test.url_data
 
 
-#Définition du scope:
+# Définition du scope:
 list_domains = ["fr.wikipedia.org", "wikimedia.org"]
-list_directories = ["/wiki/", "/w/"]
+#list_directories = ["/wiki/", "/w/"]
+list_directories = ["/wiki/Garnier_de_Rochefort"]
 
 url_start ="https://fr.wikipedia.org/wiki/Garnier_de_Rochefort" #input("URL : ")
 
