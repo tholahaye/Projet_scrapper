@@ -9,7 +9,7 @@ class ScrapingSession:
                  collection_session_domains, collection_session_dir_prefix,
                  list_domains, list_directories=None, limit=2):
         self.url = url
-        self.url_in_progress = None
+        self.url_in_progress = "init"
         self.collection_url = collection_url
         self.collection_data = collection_data
         self.collection_session_events = collection_session_events
@@ -58,6 +58,11 @@ class ScrapingSession:
                                                     {"$set": {"status": "completed",
                                                               "end_datetime": datetime.now()}})
             print("Session completed")
+        if status == "errors":
+            self.collection_data_session.update_one({"_id": self.id_session},
+                                                    {"$set": {"status": "terminated with error(s)",
+                                                              "end_datetime": datetime.now()}})
+            print("Session terminated with error(s)")
         if status == "interrupted":
             self.collection_data_session.update_one({"_id": self.id_session}, {"$set": {"status": "pause"}})
             print("Machine exit: the limit has been reached")
@@ -75,21 +80,31 @@ class ScrapingSession:
                                            collection_data_session=self.collection_data_session,
                                            id_session=self.id_session,
                                            list_domains=self.list_domains, list_directories=self.list_directories)
-            scraper.insert_links()
-            scraper.insert_document()
-            print(f"{self.url_in_progress} is done")
-            self.url_done()
+
+
+            if scraper.error:
+                print(f"{self.url_in_progress} aborted wit an error")
+                self.url_error()
+            else:
+                scraper.insert_links()
+                scraper.insert_document()
+                print(f"{self.url_in_progress} is done")
+                self.url_done()
 
         query_in_progress = self.collection_url.find_one({"status": "in progress", "id_session": self.id_session})
         query_pending = self.collection_url.find_one({"status": "pending", "id_session": self.id_session})
+        query_error = self.collection_url.find_one({"status": "error", "id_session": self.id_session})
         if query_in_progress is None:
             if query_pending is None:
-                self.session_log("completed")
+                if query_error is None:
+                    self.session_log("completed")
+                else:
+                    self.session_log("errors")
             else:
                 self.session_log("interrupted")
 
     def select_url(self):
-        if self.url_in_progress is None:
+        if self.url_in_progress == "init":
             self.url_in_progress = self.url
 
         else:
@@ -107,3 +122,8 @@ class ScrapingSession:
     def url_done(self):
         url_id = self.collection_url.find_one({"url": self.url_in_progress})["_id"]
         self.collection_url.update_one({"_id": url_id}, {"$set": {"status": "done"}})
+
+    def url_error(self):
+        url_id = self.collection_url.find_one({"url": self.url_in_progress})["_id"]
+        print(url_id)
+        self.collection_url.update_one({"_id": url_id}, {"$set": {"status": "error"}})
