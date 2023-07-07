@@ -24,6 +24,14 @@ collection_session_domains_test = db_test.session_domains
 # Création de la collection_session_dir_prefix
 collection_session_dir_prefix_test = db_test.session_dir_prefix
 
+#list_domains = ["fr.wikipedia.org", "wikimedia.org"]
+#list_directories = ["/wiki/", "/w/"]
+#list_directories = ["/wiki/Garnier_de_Rochefort"]
+
+#url_start = "https://fr.wikipedia.org/wiki/Garnier_de_Rochefort"  # input("URL : ")
+
+
+
 # Définition du scope:
 list_domains = input("domain list : ")  # ["fr.wikipedia.org", "wikimedia.org"]
 list_directories = input("directories list : ")  # ["/wiki/", "/w/"]
