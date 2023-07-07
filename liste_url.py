@@ -222,7 +222,7 @@ class UrlScraper:
                    "emphasises": {"b": b, "strong": strong, "em": em}
                }}
 
-    def insert_document(self):
+    def insert_data(self):
         if self.request is not None:
 
             parsed = self._textscrap()
