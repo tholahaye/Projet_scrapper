@@ -5,6 +5,7 @@ import traceback
 import time
 import socket
 from datetime import datetime
+import pickle
 
 
 class UrlScraper:
@@ -49,7 +50,7 @@ class UrlScraper:
                 break
             try:
 
-                result = requests.get(self.url)  #, cookies=self.cookies
+                result = requests.get(self.url, cookies=self.cookies)
 
             except requests.ConnectionError:
                 print("Erreur de connection")
@@ -95,10 +96,11 @@ class UrlScraper:
                 break
             if result.status_code == 200:
                 # Ajout des cookies à data_session
+                pickle_cookies = pickle.dumps(result.cookies)
                 self.collection_data_session.update_one({"_id": self.id_session},
-                                                        {"$set": {"cookies": str(result.cookies)}})
-                #self.cookies = self._get_cookies()
-                #print(f"LES COOKIES SONT : {self.cookies}")
+                                                        {"$set": {"cookies": pickle_cookies}})
+                self.cookies = self._get_cookies()
+                print(f"LES COOKIES SONT : {self.cookies}")
                 return result
             print(result.status_code)
             self.collection_session_events.insert_one({"idSession": self.id_session,
@@ -114,7 +116,7 @@ class UrlScraper:
         result = None
         query = self.collection_data_session.find_one({"_id": self.id_session})
         try:
-            result = query["cookies"]
+            result = pickle.loads(bytes(query["cookies"], 'utf-8'))
         except KeyError:
             pass
         return result

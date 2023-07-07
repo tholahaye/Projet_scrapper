@@ -53,13 +53,20 @@ class ScrapingSession:
         if status == "start":
             self.collection_data_session.insert_one({"start_url": self.url,
                                                      "start_datetime": datetime.now(), "status": "in progress"})
-        if status == "done":
-            self.collection_data_session.update_one({"_id": self.id_session}, {"$set": {"status": "done"}})
+        if status == "completed":
+            self.collection_data_session.update_one({"_id": self.id_session}, {"$set": {"status": "completed"}})
+            print("Session completed")
+        if status == "interrupted":
+            self.collection_data_session.update_one({"_id": self.id_session}, {"$set": {"status": "pause"}})
+            print("Machine exit: the limit has been reached")
 
     def scraping_loop(self):
 
         for n in range(self.limit):
             self.select_url()
+            if self.url_in_progress == "None":
+                break
+
             scraper = liste_url.UrlScraper(url=self.url_in_progress, collection_url=self.collection_url,
                                            collection_data=self.collection_data,
                                            collection_session_events=self.collection_session_events,
@@ -70,20 +77,29 @@ class ScrapingSession:
             scraper.insert_document()
             print(f"{self.url_in_progress} is done")
             self.url_done()
-        self.session_log("done")
-        print("Loop completed")
+
+        query_in_progress = self.collection_url.find_one({"status": "in progress", "id_session": self.id_session})
+        query_pending = self.collection_url.find_one({"status": "pending", "id_session": self.id_session})
+        if query_in_progress is None:
+            if query_pending is None:
+                self.session_log("completed")
+            else:
+                self.session_log("interrupted")
 
     def select_url(self):
         if self.url_in_progress is None:
             self.url_in_progress = self.url
 
         else:
-            query = self.collection_url.find_one({"status": "pending"})
-            self.url_in_progress = query["url"]
-            print(self.url_in_progress)
+            query = self.collection_url.find_one({"status": "pending", "id_session": self.id_session})
+            if query is not None:
+                self.url_in_progress = query["url"]
+            else:
+                self.url_in_progress = "None"
+
+
         url_id = self.collection_url.find_one({"url": self.url_in_progress})["_id"]
         self.collection_url.update_one({"_id": url_id}, {"$set": {"status": "in progress"}})
-        return self.url_in_progress
 
     def url_done(self):
         url_id = self.collection_url.find_one({"url": self.url_in_progress})["_id"]
