@@ -42,7 +42,7 @@ class UrlScraper:
                                                                    f"on {self.url}"})
         for nb_requests in range(11):
             if nb_requests > 0:
-                time.sleep(0.01)
+                time.sleep(60)
             if nb_requests == 10:
                 self.error = True
                 self.collection_session_events.insert_one({"idSession": self.id_session,

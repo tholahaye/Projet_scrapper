@@ -24,16 +24,29 @@ collection_session_domains_test = db_test.session_domains
 # Création de la collection_session_dir_prefix
 collection_session_dir_prefix_test = db_test.session_dir_prefix
 
-#list_domains = ["fr.wikipedia.org", "wikimedia.org"]
-#list_directories = ["/wiki/", "/w/"]
-#list_directories = ["/wiki/Garnier_de_Rochefort"]
 
+
+
+#### DEMO AVEC 3 SCENARIOS ####
 url_start = "https://fr.wikipedia.org/wiki/Garnier_de_Rochefort"
+
+
+#### SCENARIO 1 - Scraping à partir d'une page avec 10 urls scrapées au maximum ####
 # url_start = input("URL : ")
 
 # Définition du scope:
 list_domains = ["fr.wikipedia.org", "wikimedia.org"] #  "input("domain list : ")
 list_directories = ["/wiki/", "/w/"] #  input("directories list : ")
+
+
+#### SCENARIO 2 - Scraping à partir d'une page ayant 12 liens, et avec 20 url scrapées au maximum ####
+#list_domains = ["fr.wikipedia.org", "wikimedia.org"] #  "input("domain list : ")
+#list_directories = ["/wiki/Garnier_de_Rochefort"]    #mettre limite à 20
+
+#### SCENARIO 3 - Scraping sans connexion internet - Gestion des erreurs ####
+#list_domains = ["fr.wikipedia.org", "wikimedia.org"]  # "input("domain list : ")
+#list_directories = ["/wiki/", "/w/"]  # input("directories list : ")
+
 
 
 
