@@ -24,14 +24,11 @@ collection_session_domains_test = db_test.session_domains
 # Création de la collection_session_dir_prefix
 collection_session_dir_prefix_test = db_test.session_dir_prefix
 
-
-
 # Définition du scope:
-list_domains = ["fr.wikipedia.org", "wikimedia.org"]
-#list_directories = ["/wiki/", "/w/"]
-list_directories = ["/wiki/Garnier_de_Rochefort"]
+list_domains = input("domain list : ")  # ["fr.wikipedia.org", "wikimedia.org"]
+list_directories = input("directories list : ")  # ["/wiki/", "/w/"]
 
-url_start = "https://fr.wikipedia.org/wiki/Garnier_de_Rochefort"  # input("URL : ")
+url_start = input("URL : ")
 
 
 session = session.ScrapingSession(url=url_start, collection_url=collection_url,

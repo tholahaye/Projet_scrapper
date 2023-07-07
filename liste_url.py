@@ -1,11 +1,11 @@
-import requests
-import bs4
-from urllib.parse import urljoin, urlparse
 import traceback
 import time
 import socket
 from datetime import datetime
+from urllib.parse import urljoin, urlparse
 import pickle
+import bs4
+import requests
 
 
 class UrlScraper:
@@ -34,7 +34,8 @@ class UrlScraper:
                                                    "machine_ID": self.host_name,
                                                    "dateEvent": datetime.now(),
                                                    "eventType": "launch url scraping",
-                                                   "eventMessage": f"launch scraping on {self.url}"})
+                                                   "eventMessage": f"launch scraping "
+                                                                   f"on {self.url}"})
         for nb_requests in range(11):
             if nb_requests > 0:
                 time.sleep(60)
@@ -44,8 +45,12 @@ class UrlScraper:
                                                            "machine_ID": self.host_name,
                                                            "dateEvent": datetime.now(),
                                                            "eventType": "url scraping abortion",
-                                                           "eventMessage": f"{nb_requests +1} tentatives have failed "
-                                                                           f"to scrap {self.url}, request abortion"})
+                                                           "eventMessage": f"{nb_requests +1} "
+                                                                           f"tentatives have "
+                                                                           f"failed "
+                                                                           f"to scrap {self.url}, "
+                                                                           f"request "
+                                                                           f"abortion"})
                 break
             try:
 
@@ -58,9 +63,14 @@ class UrlScraper:
                                                            "machine_ID": self.host_name,
                                                            "dateEvent": datetime.now(),
                                                            "eventType": "url scraping error",
-                                                           "eventMessage": f"Connection error when scraping {self.url} "
-                                                                           f"after {nb_requests+1} attempt(s), "
-                                                                           f"process is trying again"})
+                                                           "eventMessage": f"Connection error "
+                                                                           f"when scraping "
+                                                                           f"{self.url} "
+                                                                           f"after "
+                                                                           f"{nb_requests+1} "
+                                                                           f"attempt(s), "
+                                                                           f"process is "
+                                                                           f"trying again"})
                 continue
             except requests.Timeout:
                 print("La requête prend trop de temps.")
@@ -69,9 +79,14 @@ class UrlScraper:
                                                            "machine_ID": self.host_name,
                                                            "dateEvent": datetime.now(),
                                                            "eventType": "url scraping error",
-                                                           "eventMessage": f"Time out event when scraping {self.url} "
-                                                                           f"after {nb_requests + 1} attempt(s), "
-                                                                           f"process is trying again"})
+                                                           "eventMessage": f"Time out event "
+                                                                           f"when scraping "
+                                                                           f"{self.url} "
+                                                                           f"after "
+                                                                           f"{nb_requests + 1} "
+                                                                           f"attempt(s), "
+                                                                           f"process is "
+                                                                           f"trying again"})
                 continue
             except requests.TooManyRedirects:
                 print("La requête excède la limite de redirection.")
@@ -80,8 +95,10 @@ class UrlScraper:
                                                            "machine_ID": self.host_name,
                                                            "dateEvent": datetime.now(),
                                                            "eventType": "url scraping abortion",
-                                                           "eventMessage": f"Too many redirections when scraping "
-                                                                           f"{self.url}, request abortion"})
+                                                           "eventMessage": f"Too many redirections"
+                                                                           f" when scraping "
+                                                                           f"{self.url}, "
+                                                                           f"request abortion"})
                 break
             except Exception:
                 print(traceback.format_exc())
@@ -90,8 +107,11 @@ class UrlScraper:
                                                            "machine_ID": self.host_name,
                                                            "dateEvent": datetime.now(),
                                                            "eventType": "url scraping abortion",
-                                                           "eventMessage": f"{traceback.format_exc()} when scraping "
-                                                                           f"{self.url}, request abortion"})
+                                                           "eventMessage":
+                                                               f"{traceback.format_exc()} "
+                                                               f"when scraping "
+                                                               f"{self.url}, "
+                                                               f"request abortion"})
                 break
             if result.status_code == 200:
                 # Ajout des cookies à data_session
@@ -106,8 +126,10 @@ class UrlScraper:
                                                        "machine_ID": self.host_name,
                                                        "dateEvent": datetime.now(),
                                                        "eventType": "url scraping error",
-                                                       "eventMessage": f"{result.status_code} returned when scraping "
-                                                                       f"{self.url} after {nb_requests + 1} attempt(s),"
+                                                       "eventMessage": f"{result.status_code} "
+                                                                       f"returned when scraping "
+                                                                       f"{self.url} after "
+                                                                       f"{nb_requests + 1} attempt(s),"
                                                                        f" process is trying again"})
 
     def _get_cookies(self):
